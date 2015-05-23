@@ -46,6 +46,10 @@ public class BluetoothLeService extends Service {
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
+    public final static String TEMPERATURE_MEASUREMENT =
+            "com.example.bluetooth.le.TEMPERATURE_MEASUREMENT";
+    public final static String HUMIDITY_MEASUREMENT =
+            "com.example.bluetooth.le.HUMIDITY_MEASUREMENT";
 
     public final static UUID UUID_TEMPERATURE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.TEMPERATURE_MEASUREMENT);
@@ -89,10 +93,20 @@ public class BluetoothLeService extends Service {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             Log.d(TAG, "sending the data...");
-            Log.d(TAG, "Data: "+ characteristic.getValue());
-
+            Log.d(TAG, "Data: " + characteristic.getUuid());
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                if(characteristic.getUuid().equals(UUID_TEMPERATURE_MEASUREMENT)){
+                    Log.d(TAG, "sending temperature........");
+                    //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                    broadcastUpdate(TEMPERATURE_MEASUREMENT, characteristic);
+                    Log.d(TAG, "sent temperature........");
+                }
+                else if(characteristic.getUuid().equals(UUID_HUMIDITY_MEASUREMENT)){
+                    Log.d(TAG, "sending humidity........");
+                    //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                    broadcastUpdate(HUMIDITY_MEASUREMENT, characteristic);
+                    Log.d(TAG, "sent humidity........");
+                }
             }
         }
 
@@ -133,10 +147,10 @@ public class BluetoothLeService extends Service {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
                 for(byte byteChar : data)
                     stringBuilder.append(String.format("%02X ", byteChar));
-                int t = shortUnsignedAtOffset(characteristic, 1);
-                float temp = (float)(t/ 100.0);
-
-                intent.putExtra(EXTRA_DATA, Float.toString(temp));
+                //int t = shortUnsignedAtOffset(characteristic, 1);
+                //float temp = (float)(t/ 100.0);
+                //intent.putExtra(EXTRA_DATA, Float.toString(temp));
+                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
 
          //   }
         }

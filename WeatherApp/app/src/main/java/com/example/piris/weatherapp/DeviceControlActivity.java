@@ -26,25 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 public class DeviceControlActivity extends Activity {
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
 
@@ -52,7 +33,9 @@ public class DeviceControlActivity extends Activity {
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
     private TextView mConnectionState;
-    private TextView mDataField;
+    //private TextView mDataField;
+    private TextView mDataFieldTemp;
+    private TextView mDataFieldHum;
     private String mDeviceName;
     private String mDeviceAddress;
     private ExpandableListView mGattServicesList;
@@ -107,8 +90,16 @@ public class DeviceControlActivity extends Activity {
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Show all the supported services and characteristics on the user interface.
                 displayGattServices(mBluetoothLeService.getSupportedGattServices());
-            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+            } else if (BluetoothLeService.TEMPERATURE_MEASUREMENT.equals(action)) {
+                Log.d(TAG, "Temp measurement...............");
+                displayDataTemp(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+            }
+            else if (BluetoothLeService.HUMIDITY_MEASUREMENT.equals(action)) {
+                Log.d(TAG, "Hum measurement...............");
+                displayDataHum(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+            }
+            else{
+                Log.d(TAG, action);
             }
         }
     };
@@ -136,20 +127,20 @@ public class DeviceControlActivity extends Activity {
                             }
                             mBluetoothLeService.readCharacteristic(characteristic);
                         }
-
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                            mNotifyCharacteristic = characteristic;
-                            mBluetoothLeService.setCharacteristicNotification(
-                                    characteristic, true);
-                        }
-
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
-                            mNotifyCharacteristic = characteristic;
-                            Log.d(TAG, "In property WRITE....");
-                            //byte [] dataSent =  new byte[] {(byte)0xc3,(byte) 0x50};
-                            mBluetoothLeService.writeCharacteristic(
-                                    characteristic);
-                        }
+                        /*TODO: Implement for notifications*/
+                        //if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                        //    mNotifyCharacteristic = characteristic;
+                        //    mBluetoothLeService.setCharacteristicNotification(
+                        //            characteristic, true);
+                        //}
+                        /*TODO: Implement for fan control*/
+                        //if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+                        //    mNotifyCharacteristic = characteristic;
+                        //    Log.d(TAG, "In property WRITE....");
+                        //    //byte [] dataSent =  new byte[] {(byte)0xc3,(byte) 0x50};
+                        //    mBluetoothLeService.writeCharacteristic(
+                        //            characteristic);
+                        //}
                         return true;
                     }
                     return false;
@@ -158,7 +149,9 @@ public class DeviceControlActivity extends Activity {
 
     private void clearUI() {
         mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
-        mDataField.setText(R.string.no_data);
+        //mDataField.setText(R.string.no_data);
+        mDataFieldTemp.setText(R.string.no_data);
+        mDataFieldHum.setText(R.string.no_data);
     }
 
     @Override
@@ -175,7 +168,8 @@ public class DeviceControlActivity extends Activity {
         mGattServicesList = (ExpandableListView) findViewById(R.id.gatt_services_list);
         mGattServicesList.setOnChildClickListener(servicesListClickListner);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
-        mDataField = (TextView) findViewById(R.id.data_value);
+        mDataFieldTemp = (TextView) findViewById(R.id.data_value_temp);
+        mDataFieldHum = (TextView) findViewById(R.id.data_value_hum);
 
         getActionBar().setTitle(mDeviceName);
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -244,11 +238,20 @@ public class DeviceControlActivity extends Activity {
         });
     }
 
-    private void displayData(String data) {
-        Log.d(TAG,"Showing data: ");
-        Log.d(TAG, data +" °C" );
+    private void displayDataTemp(String data) {
+        Log.d(TAG,"Showing Temp: ");
+        //Log.d(TAG, data + " °C");
         if (data != null) {
-            mDataField.setText(data + " °C");// data receitved
+            //mDataField.setText(data + " °C");// data receitved
+            mDataFieldTemp.setText(data + " °C");
+        }
+    }
+
+    private void displayDataHum(String data) {
+        Log.d(TAG,"Showing Hum: ");
+        if (data != null) {
+            //mDataField.setText(data + " °C");// data receitved
+            mDataFieldHum.setText(data + " °C");
         }
     }
 
@@ -353,6 +356,8 @@ public class DeviceControlActivity extends Activity {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(BluetoothLeService.TEMPERATURE_MEASUREMENT);
+        intentFilter.addAction(BluetoothLeService.HUMIDITY_MEASUREMENT);
         return intentFilter;
     }
 
