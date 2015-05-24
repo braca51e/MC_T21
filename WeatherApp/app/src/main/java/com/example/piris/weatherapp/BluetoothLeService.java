@@ -17,6 +17,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.UUID;
 
@@ -126,7 +128,7 @@ public class BluetoothLeService extends Service {
                                           BluetoothGattCharacteristic characteristic, int status) {
             Log.d(TAG, "it is writting...");
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             }
 
         }
@@ -155,8 +157,6 @@ public class BluetoothLeService extends Service {
                 else{
                     intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
                 }
-
-         //   }
         }
         sendBroadcast(intent);
     }
@@ -288,7 +288,7 @@ public class BluetoothLeService extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        Log.d(TAG, "Sent broadcast!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + characteristic);
+        Log.d(TAG, "Read Characteristic...." + characteristic);
         mBluetoothGatt.readCharacteristic(characteristic);
     }
 
@@ -306,13 +306,17 @@ public class BluetoothLeService extends Service {
        // Log.d(TAG, Byte.toString(value[1]));
         Log.d(TAG, "in WriteCHar.....");
         //Log.d(TAG, characteristic.getValue().toString());
+        short test = 0x4a38;
+        //characteristic.setValue(Short.toString(test));
 
-        //characteristic.setValue(value);
-
-        characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-
-        mBluetoothGatt.writeCharacteristic(characteristic);
-
+        //characteristic.setValue("AAAA");
+        //characteristic.setValue(25000, 0, BluetoothGattCharacteristic.FORMAT_UINT16, 0);
+        characteristic.setValue(25000, BluetoothGattCharacteristic.FORMAT_UINT16, 0);
+        characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+        //characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        if(mBluetoothGatt.writeCharacteristic(characteristic)){
+            Log.d(TAG, "Exit WriteCHar Success....."+Short.toString(test));
+        }
     }
 
 

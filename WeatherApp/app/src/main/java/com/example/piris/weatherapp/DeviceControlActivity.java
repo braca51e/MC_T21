@@ -118,25 +118,30 @@ public class DeviceControlActivity extends Activity {
                                 mGattCharacteristics.get(groupPosition).get(childPosition);
                         final int charaProp = characteristic.getProperties();
                         if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                            // If there is an active notification on a characteristic, clear
-                            // it first so it doesn't update the data field on the user interface.
-                            if (mNotifyCharacteristic != null) {
-                                mBluetoothLeService.setCharacteristicNotification(
-                                        mNotifyCharacteristic, false);
-                                mNotifyCharacteristic = null;
+                            if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) == 0) {
+                                // If there is an active notification on a characteristic, clear
+                                // it first so it doesn't update the data field on the user interface.
+                                Log.d(TAG, "In property READ....");
+                                if (mNotifyCharacteristic != null) {
+                                    mBluetoothLeService.setCharacteristicNotification(
+                                            mNotifyCharacteristic, false);
+                                    mNotifyCharacteristic = null;
+                                }
+                                mBluetoothLeService.readCharacteristic(characteristic);
                             }
-                            mBluetoothLeService.readCharacteristic(characteristic);
                         }
                         /*TODO: Implement for notifications*/
-                        //if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                        //    mNotifyCharacteristic = characteristic;
-                        //    mBluetoothLeService.setCharacteristicNotification(
-                        //            characteristic, true);
-                        //}
+                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                            if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) == 0) {
+                                mNotifyCharacteristic = characteristic;
+                                mBluetoothLeService.setCharacteristicNotification(
+                                        characteristic, true);
+                            }
+                        }
                         /*TODO: Implement for fan control*/
                         if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
                             mNotifyCharacteristic = characteristic;
-                            Log.d(TAG, "In property WRITE....");
+                            Log.d(TAG, "In property WRITE...."+charaProp);
                             //byte [] dataSent =  new byte[] {(byte)0xc3,(byte) 0x50};
                             mBluetoothLeService.writeCharacteristic(
                                     characteristic);
