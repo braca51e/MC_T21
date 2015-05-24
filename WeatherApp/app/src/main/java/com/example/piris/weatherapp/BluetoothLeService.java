@@ -147,10 +147,14 @@ public class BluetoothLeService extends Service {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
                 for(byte byteChar : data)
                     stringBuilder.append(String.format("%02X ", byteChar));
-                //int t = shortUnsignedAtOffset(characteristic, 1);
-                //float temp = (float)(t/ 100.0);
-                //intent.putExtra(EXTRA_DATA, Float.toString(temp));
-                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
+                if(action.equals(TEMPERATURE_MEASUREMENT)){
+                    int t = shortUnsignedAtOffset(characteristic, 1);
+                    float temp = (float)(t/ 100.0);
+                    intent.putExtra(EXTRA_DATA, Float.toString(temp));
+                }
+                else{
+                    intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
+                }
 
          //   }
         }

@@ -117,7 +117,7 @@ public class DeviceControlActivity extends Activity {
                         final BluetoothGattCharacteristic characteristic =
                                 mGattCharacteristics.get(groupPosition).get(childPosition);
                         final int charaProp = characteristic.getProperties();
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
                             // If there is an active notification on a characteristic, clear
                             // it first so it doesn't update the data field on the user interface.
                             if (mNotifyCharacteristic != null) {
@@ -134,13 +134,13 @@ public class DeviceControlActivity extends Activity {
                         //            characteristic, true);
                         //}
                         /*TODO: Implement for fan control*/
-                        //if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
-                        //    mNotifyCharacteristic = characteristic;
-                        //    Log.d(TAG, "In property WRITE....");
-                        //    //byte [] dataSent =  new byte[] {(byte)0xc3,(byte) 0x50};
-                        //    mBluetoothLeService.writeCharacteristic(
-                        //            characteristic);
-                        //}
+                        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+                            mNotifyCharacteristic = characteristic;
+                            Log.d(TAG, "In property WRITE....");
+                            //byte [] dataSent =  new byte[] {(byte)0xc3,(byte) 0x50};
+                            mBluetoothLeService.writeCharacteristic(
+                                    characteristic);
+                        }
                         return true;
                     }
                     return false;
@@ -242,7 +242,6 @@ public class DeviceControlActivity extends Activity {
         Log.d(TAG,"Showing Temp: ");
         //Log.d(TAG, data + " °C");
         if (data != null) {
-            //mDataField.setText(data + " °C");// data receitved
             mDataFieldTemp.setText(data + " °C");
         }
     }
