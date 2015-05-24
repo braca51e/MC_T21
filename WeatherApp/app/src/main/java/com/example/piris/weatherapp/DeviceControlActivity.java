@@ -250,8 +250,22 @@ public class DeviceControlActivity extends Activity {
     private void displayDataHum(String data) {
         Log.d(TAG,"Showing Hum: ");
         if (data != null) {
-            //mDataField.setText(data + " °C");// data receitved
-            mDataFieldHum.setText(data + " °C");
+            StringBuffer humidity = new StringBuffer(data.replaceAll("\\s",""));
+            char temp1;
+            char temp2;
+            humidity.deleteCharAt(0);
+            humidity.deleteCharAt(2);
+            humidity.reverse();
+            temp1 = humidity.charAt(1);
+            temp2 = humidity.charAt(2);
+            humidity.deleteCharAt(1);
+            humidity.deleteCharAt(1);
+            humidity.append(temp2);
+            humidity.append(temp1);
+            Log.d(TAG, "Humidity string: " + humidity.toString());
+            float n = Long.parseLong(humidity.toString(), 16);
+            n = n*0.01f;
+            mDataFieldHum.setText(String.valueOf(n) + "%");
         }
     }
 
