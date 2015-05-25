@@ -116,9 +116,20 @@ public class BluetoothLeService extends Service {
         // Characteristic notifications
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
-            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-
+            //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             Log.d(TAG, "changing the data...");
+            if(characteristic.getUuid().equals(UUID_TEMPERATURE_MEASUREMENT)){
+                Log.d(TAG, "sending temperature........");
+                //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                broadcastUpdate(TEMPERATURE_MEASUREMENT, characteristic);
+                Log.d(TAG, "sent temperature........");
+            }
+            else if(characteristic.getUuid().equals(UUID_HUMIDITY_MEASUREMENT)){
+                Log.d(TAG, "sending humidity........");
+                //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                broadcastUpdate(HUMIDITY_MEASUREMENT, characteristic);
+                Log.d(TAG, "sent humidity........");
+            }
 
 
         }
@@ -130,10 +141,7 @@ public class BluetoothLeService extends Service {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             }
-
         }
-
-
     };
 
     private void broadcastUpdate(final String action) {
@@ -297,7 +305,7 @@ public class BluetoothLeService extends Service {
      *write charateristic
      */
 
-    public void writeCharacteristic(BluetoothGattCharacteristic characteristic){
+    public void writeCharacteristic(BluetoothGattCharacteristic characteristic, boolean turnOff){
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
@@ -306,17 +314,19 @@ public class BluetoothLeService extends Service {
        // Log.d(TAG, Byte.toString(value[1]));
         Log.d(TAG, "in WriteCHar.....");
         //Log.d(TAG, characteristic.getValue().toString());
-        short test = 0x4a38;
         //characteristic.setValue(Short.toString(test));
-
-        //characteristic.setValue("AAAA");
-        //characteristic.setValue(25000, 0, BluetoothGattCharacteristic.FORMAT_UINT16, 0);
-        characteristic.setValue(25000, BluetoothGattCharacteristic.FORMAT_UINT16, 0);
+        if(turnOff){
+            characteristic.setValue(0, BluetoothGattCharacteristic.FORMAT_UINT16, 0);
+        }
+        else{
+            characteristic.setValue(29000, BluetoothGattCharacteristic.FORMAT_UINT16, 0);
+        }
         characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
         //characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
         if(mBluetoothGatt.writeCharacteristic(characteristic)){
-            Log.d(TAG, "Exit WriteCHar Success....."+Short.toString(test));
+            Log.d(TAG, "Exit WriteCHar Success.....");
         }
+
     }
 
 

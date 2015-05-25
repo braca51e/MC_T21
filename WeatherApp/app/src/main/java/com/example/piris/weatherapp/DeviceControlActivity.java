@@ -18,6 +18,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
@@ -44,6 +46,7 @@ public class DeviceControlActivity extends Activity {
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
     private boolean mConnected = false;
     private BluetoothGattCharacteristic mNotifyCharacteristic;
+    private CheckBox checkBox;
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
@@ -133,9 +136,12 @@ public class DeviceControlActivity extends Activity {
                         /*TODO: Implement for notifications*/
                         if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
                             if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) == 0) {
-                                mNotifyCharacteristic = characteristic;
-                                mBluetoothLeService.setCharacteristicNotification(
-                                        characteristic, true);
+                                if(checkBox.isChecked()){
+                                    Log.d(TAG, "In property NOTIFY....");
+                                    mNotifyCharacteristic = characteristic;
+                                    mBluetoothLeService.setCharacteristicNotification(
+                                            characteristic, true);
+                                }
                             }
                         }
                         /*TODO: Implement for fan control*/
@@ -144,7 +150,7 @@ public class DeviceControlActivity extends Activity {
                             Log.d(TAG, "In property WRITE...."+charaProp);
                             //byte [] dataSent =  new byte[] {(byte)0xc3,(byte) 0x50};
                             mBluetoothLeService.writeCharacteristic(
-                                    characteristic);
+                                    characteristic,checkBox.isChecked());
                         }
                         return true;
                     }
@@ -175,6 +181,7 @@ public class DeviceControlActivity extends Activity {
         mConnectionState = (TextView) findViewById(R.id.connection_state);
         mDataFieldTemp = (TextView) findViewById(R.id.data_value_temp);
         mDataFieldHum = (TextView) findViewById(R.id.data_value_hum);
+        checkBox = (CheckBox) findViewById(R.id.checkBox);
 
         getActionBar().setTitle(mDeviceName);
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -258,18 +265,25 @@ public class DeviceControlActivity extends Activity {
             char temp1;
             char temp2;
             humidity.deleteCharAt(0);
-            humidity.deleteCharAt(2);
+            Log.d(TAG, "Humidity2 string: " + humidity.length());
+            Log.d(TAG, "Humidity2 string: " + humidity.toString());
+            humidity.deleteCharAt(0);
+            Log.d(TAG, "Humidity3 string: " + humidity.length());
+            Log.d(TAG, "Humidity3 string: " + humidity.toString());
             humidity.reverse();
+            Log.d(TAG, "Humidity3 reverse: " + humidity.toString());
             temp1 = humidity.charAt(1);
             temp2 = humidity.charAt(2);
             humidity.deleteCharAt(1);
             humidity.deleteCharAt(1);
+            humidity.insert(0,temp1);
             humidity.append(temp2);
-            humidity.append(temp1);
-            Log.d(TAG, "Humidity string: " + humidity.toString());
+            Log.d(TAG, "Humidity4 string: " + humidity.toString());
             float n = Long.parseLong(humidity.toString(), 16);
             n = n*0.01f;
             mDataFieldHum.setText(String.valueOf(n) + "%");
+            //mDataFieldHum.setText(humidity.toString() + "%");
+            //mDataFieldHum.setText(data + "%");
         }
     }
 
