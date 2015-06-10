@@ -117,18 +117,18 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-            Log.d(TAG, "changing the data...");
+            Log.d(TAG, "New Notification ...");
             if(characteristic.getUuid().equals(UUID_TEMPERATURE_MEASUREMENT)){
-                Log.d(TAG, "sending temperature........");
+                Log.d(TAG, "Notification temperature........");
                 //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
                 broadcastUpdate(TEMPERATURE_MEASUREMENT, characteristic);
-                Log.d(TAG, "sent temperature........");
+                //Log.d(TAG, "sent temperature........");
             }
             else if(characteristic.getUuid().equals(UUID_HUMIDITY_MEASUREMENT)){
-                Log.d(TAG, "sending humidity........");
+                Log.d(TAG, "Notification humidity........");
                 //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
                 broadcastUpdate(HUMIDITY_MEASUREMENT, characteristic);
-                Log.d(TAG, "sent humidity........");
+                //Log.d(TAG, "sent humidity........");
             }
 
 
@@ -347,7 +347,7 @@ public class BluetoothLeService extends Service {
         for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
             //find descriptor UUID that matches Client Characteristic Configuration (0x2902)
             // and then call setValue on that descriptor
-
+            Log.d(TAG, "Notification ACTIVATED");
             descriptor.setValue( BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             mBluetoothGatt.writeDescriptor(descriptor);
         }
